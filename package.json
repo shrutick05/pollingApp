@@ -1,0 +1,31 @@
+{
+  "name": "pollingapi",
+  "version": "1.0.0",
+  "description": "A simple API to conduct polls",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "nodemon -w ./ -x npm run start"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^3.0.0",
+    "eslint-config-standard": "^6.0.1",
+    "eslint-plugin-promise": "^2.0.1",
+    "eslint-plugin-standard": "^2.0.0",
+    "nodemon": "^1.10.2"
+  },
+  "dependencies": {
+    "babel-preset-node5": "^11.1.0",
+    "babel-register": "^6.14.0",
+    "express": "^4.14.0",
+    "formidable": "^1.0.17",
+    "redis": "^2.6.2"
+  },
+  "babel": {
+    "presets": [
+      "node5"
+    ]
+  }
+}

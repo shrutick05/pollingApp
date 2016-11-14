@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Create Poll</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
+    <link rel="stylesheet" type="text/css" href="css/create.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+    #toast-container {
+        padding: 5% !important;
+        text-align: center;
+    }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-wrapper">
+            <a class="center brand-logo col s4" href="/">POLLING APP</a>
+        </div>
+    </nav>
+    <div id="form">
+        <form id="form-input" action="/api/poll" enctype="multipart/form-data" method="post">
+            <div class="input-field col s12">
+                <textarea id="question" class="materialize-textarea" type="text" maxlength="150" name="question"></textarea>
+                <label for="question">Question</label>
+            </div>
+            <div id="options" style="width: 75%">
+                <div id="1" class="input-field col s6">
+                    <input id="option1" class="validate" type="text" maxlength="150" name="1">
+                    <label for="option">Option 1</label>
+                </div>
+                <div id="2" class="input-field col s6">
+                    <input id="option2" class="validate" type="text" maxlength="150" name="2">
+                    <label for="option">Option 2</label>
+                </div>
+            </div>
+            <div class="right" style="width: 50px; height: 100px;">
+                <a id="add-option" class="right btn-floating btn-small waves-effect waves-light red" style="
+                display: inline-block;"><i class="material-icons">add</i></a>
+                <br/>
+                <br/>
+                <a id="remove-option" class="right btn-floating btn-small waves-effect waves-light red" style="display: inline-block;"><i class="material-icons">remove</i></a>
+            </div>
+            <br/>
+            <div id="form-button">
+                <a class="waves-effect waves-light btn">Submit</a>
+            </div>
+        </form>
+        <br/>
+    </div>
+    <script type="text/javascript">
+    window.onload = function() {
+        makeDivsClickable()
+
+    }
+
+    function addOption() {
+        var options = document.getElementById('options')
+        var id = options.children.length + 1
+        var html = ""
+        html += "<div id=\"" + id + "\" class=\"input-field col s6\">"
+        html += "<input id=\"option" + id + "\" class=\"validate\" type=\"text\" maxlength=\"150\" name=\"" + id + "\">"
+        html += "<label for=\"option\">Option " + id + "</label>"
+        html += "</div>"
+        options.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removeOption() {
+        var list = document.getElementById('options')
+        var item = list.lastElementChild
+        list.removeChild(item)
+    }
+
+    function makeDivsClickable() {
+        var button = document.getElementById('form-button')
+        button.addEventListener('click', function() {
+            if (checkSimilar()) {
+                if (checkFilled()) {
+                    document.getElementById('form-input').submit()
+                } else {
+                    Materialize.toast("Don't leave any field empty", 2000, 'rounded')
+                }
+            } else {
+                Materialize.toast("Two options can't be same", 3000, 'rounded')
+
+            }
+
+        })
+        document.getElementById('add-option').addEventListener('click', function() {
+            if (checkSimilar()) {
+                if (checkFilled()) {
+                    addOption()
+                } else {
+                    Materialize.toast("Don't leave any field empty", 2000, 'rounded')
+                }
+            } else {
+                Materialize.toast("Two options can't be same", 3000, 'rounded')
+            }
+        })
+        document.getElementById('remove-option').addEventListener('click', function() {
+            var options = document.getElementById('options').children.length
+            if (options > 2) {
+                removeOption()
+            }
+        })
+
+        function checkFilled() {
+            var options = document.getElementById('options').children.length
+            var flag = true
+            if (document.getElementById('question').value.length > 0) {
+                for (var i = 1; i <= options; i++) {
+                    if (document.getElementById("option" + i).value.length <= 0) {
+                        flag = false
+                    }
+                }
+            } else {
+                flag = false
+            }
+            return flag
+        }
+    }
+
+    function checkSimilar() {
+        var options = document.getElementById('options').children
+        var count = options.length
+        var flag = true
+        var current = document.getElementById('option' + count).value.trim().toLowerCase()
+        while (count > 0) {
+            current = document.getElementById('option' + count).value.trim().toLowerCase()
+            for (var i = 1; i <= options.length; i++)
+                if (i !== count) {
+                    var input = document.getElementById('option' + i).value.trim().toLowerCase()
+                    if (input === current) {
+                        flag = false
+                    }
+                }
+            count--
+
+        }
+        return flag
+    }
+    </script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+
+</html>
