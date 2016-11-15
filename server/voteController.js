@@ -1,7 +1,7 @@
 const redis = require('redis')
 const bodyparser = require('body-parser')
 const formidable = require('formidable')
-var client = redis.createClient({ port: 6379, host: '127.0.0.1', db: 1 })
+var client = redis.createClient()
 
 module.exports = function(app) {
     app.post('/api/vote/:id', function(req, res) {

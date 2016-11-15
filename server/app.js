@@ -3,7 +3,7 @@ const redis = require('redis')
 const path = require('path')
 const bodyparser = require('body-parser')
 const formidable = require('formidable')
-var client = redis.createClient({ port: 6379, host: '127.0.0.1', db: 1 })
+var client = redis.createClient()
 
 const app = express()
 app.use(express.static(path.resolve('.') + '/public'))
@@ -25,7 +25,7 @@ pollController(app)
 const voteController = require('./voteController')
 voteController(app)
 
-const port = 3000
+const port = 8000
 app.listen(port, () => {
     console.log('Running on port ' + port)
 })

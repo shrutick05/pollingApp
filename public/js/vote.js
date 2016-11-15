@@ -4,7 +4,7 @@ IO.getJSON('/api/getpollData')
       createCard(JSON.parse(data[qid]),qid)
     }
   })
-  
+
 function createCard(data, qid) {
     var question = data.question
     var container = document.getElementById('votecards')
@@ -27,7 +27,7 @@ function createCard(data, qid) {
         })
       .bind(id => IO.getJSON('/api/polloptions/' + id))
       .map((e, options) => options)
-      .then(options => getData(options))
+      .then(options => getData(options, question))
 
     var textVote = document.createTextNode(' Vote')
     trigger.appendChild(textVote)
@@ -35,20 +35,23 @@ function createCard(data, qid) {
     $('.modal-trigger').leanModal()
 }
 
+function fetchOptions(data) {
+  var list = []
+  for (let key in data) {
+      if (key !== 'pollId' && key !== 'pollCount') {
+          list.push(key)
+      }
+  }
+  return list
+}
 
-function getData(data) {
-    //console.log(data)
-    var list = []
-    for (let key in data) {
-        if (key !== 'pollId' && key !== 'pollCount') {
-            list.push(key)
-        }
-    }
+function getData(data, question) {
+    var list = fetchOptions(data)
     var count = 1
     var pollId = data.pollId
     var html = ''
     html += '<div>'
-    // html += '<div class="flow-text">' + question + '</div>'
+    html += '<div class="flow-text">' + question + '</div>'
     html += '<form id="modal-form" action="/api/vote/' + pollId + '" enctype="multipart/form-data" method="post">'
     list.forEach(element => {
         if (count === 1) {
@@ -63,7 +66,6 @@ function getData(data) {
     html += '</div>'
     document.getElementById('modal-content').innerHTML = html
     makeButtonsClickable(pollId)
-    // xhr.send()
 }
 
 function makeButtonsClickable(pollId) {
@@ -84,7 +86,7 @@ function makeButtonsClickable(pollId) {
 }
 
 function vote(option, pollId) {
-    // console.log(option)
+    console.log(option)
     var xhr = new XMLHttpRequest()
     xhr.open('POST', `/api/vote/${pollId}`, true)
     xhr.onreadystatechange = function() {
@@ -106,11 +108,13 @@ function vote(option, pollId) {
 
 function constructGraph(id) {
     var xhr = new XMLHttpRequest()
-    xhr.open('GET', `/api/polloptions/${id}`, true)
+    xhr.open('GET', `/api/polloptionsdata/${id}`, true)
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
-            var response = JSON.parse(xhr.responseText)
-            var options = response.options
+            var data = JSON.parse(xhr.responseText)
+            console.log(data)
+            var options = data.options
+            var pollId = options['pollId']
             delete options['pollId']
             var pollCount = options['pollCount']
             delete options['pollCount']
@@ -123,91 +127,18 @@ function constructGraph(id) {
                 obj['votes'] = options[key]
                 list.push(obj)
             }
-
-            // console.log(list)
-            var graph_content = document.getElementById('graph-content')
-            graph_content.innerHTML = '<p class = "flow-text">' + response.question + '</p>'
-            var width = 500
-            var height = 400
-            var canvas_width = 600
-                // using d3 to create graph
-            var widthScale = d3.scaleLinear()
-                .domain([0, 100])
-                .range([10, width - 10])
-            var graph = d3.select('#graph-content').append('svg')
-                .attr('width', canvas_width)
-                .attr('height', height)
-                .attr('margin', '0 auto')
-                .append('g')
-                // .attr('transform', 'translate(150,0)')
-
-            // var axis = d3.axisBottom(widthScale)
-            var elements = graph.selectAll('g')
-                .data(list)
-                .enter()
-                .append('g')
-
-            // append bars to the canvas
-            elements.append('rect')
-                .attr('width', 0)
-                .attr('height', 30)
-                .attr('y', function(d, i) {
-                    return i * 70
-                })
-                .attr('fill', '#33691e')
-
-            // append percentage to the bars
-            elements.append('text')
-                .attr('id', 'percent')
-                .attr('x', -30)
-                .attr('y', function(d, i) {
-                    return i * 70 + 15
-                })
-                .attr('dy', '.35em')
-                .attr('fill', 'white')
-                .text(function(d) {
-                    return d.value + '%'
-                })
-
-            // append the legend to the bars
-            elements.append('text')
-                .attr('id', 'element_name')
-                .attr('x', 0)
-                .attr('y', function(d, i) {
-                    return i * 70 + 15
-                })
-                .attr('dy', '.35em')
-                .text(function(d) {
-                    return d.name
-                })
-
-            // transition for the percentage text
-            var percent = d3.selectAll('#percent')
-                .transition()
-                .duration(1500)
-                .attr('x', function(d) {
-                    return widthScale(d.value) - 40
-                })
-
-            // transition for the name of the element
-            var element_name = d3.selectAll('#element_name')
-                .transition()
-                .duration(1500)
-                .attr('x', function(d) {
-                    return widthScale(d.value) + 3
-                })
-
-            // transition for the bars
-            var bars = graph.selectAll('rect')
-            bars.transition()
-                .duration(1500)
-                .attr('width', function(d) {
-                    return widthScale(d.value)
-                })
-                // Append an axis at the bottom of the graph
-            graph.append('g')
-                .attr('transform', 'translate(0,350)')
-                .call(d3.axisBottom(widthScale))
+            console.log(list)
+            var html =''
+            html += '<p class = "flow-text">' + data.question + '</p>'
+            html += '<form id="modal-form" action="/api/vote/' + pollId + '" enctype="multipart/form-data" method="post">'
+            list.forEach(elm => {
+              html += '<div class="progress">'
+              html += '<div class="determinate" style="width:'+ elm.value +'%;height= 50%;"><label style="text-align: center;">' + elm.name + '  ' + elm.value + '%</label></div>'
+              html += '</div>'
+            })
+            html += '</form>'
+            html += '</div>'
+            document.getElementById('graph-content').innerHTML = html
         }
     }
     xhr.send()

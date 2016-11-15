@@ -3,13 +3,15 @@
     margin: 0 auto;
     margin-top: 50px;
 }
-
 @media all and (max-width: 720px) {
     #form {
         width: 90%;
     }
 }
-
 #form-button {
     width: 150px;
+}
+#toast-container {
+    padding: 5% !important;
+    text-align: center;
 }

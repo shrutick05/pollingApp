@@ -1,0 +1,38 @@
+.col {
+    display: inline-block;
+    width: 99%;
+    padding: 2%;
+}
+.lean-overlay {
+    height: auto !important;
+}
+#modal-content {
+    width: 100% !important;
+    height: 100% !important;
+}
+#toast-container {
+    padding: 5% !important;
+    text-align: center;
+}
+.progress {
+  position: relative;
+  height: 28px;
+  display: block;
+  width: 100%;
+  background-color: #acece6;
+  border-radius: 2px;
+  margin: 0.5rem 0 1rem 0;
+  overflow: hidden;
+}
+.progress label {
+  font-size: 13px;
+  color: #000;
+  margin: 5px;
+}
+@media all and (min-width: 720px) {
+    .col {
+        display: inline-block;
+        width: 49%;
+        padding: 2%;
+    }
+}

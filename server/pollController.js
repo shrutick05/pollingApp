@@ -1,7 +1,7 @@
 const redis = require('redis')
 const bodyparser = require('body-parser')
 const formidable = require('formidable')
-var client = redis.createClient({ port: 6379, host: '127.0.0.1', db: 1 })
+var client = redis.createClient()
 
 module.exports = function(app) {
 
@@ -43,30 +43,44 @@ module.exports = function(app) {
 
         client.hmset('pollData', pollId, JSON.stringify({"question": question, "pollOptions": pollOptions}))
     }
-    app.get('/api/polloptions/:id', function(req, res) {
-        //var pollId = req.params.id
+
+    app.get('/api/polloptions/:id', (req, res) => {
         client.hgetall('pollOptions:' + req.params.id, function(err, reply) {
             res.send(reply)
         })
     })
+    
+    app.get('/api/polloptionsdata/:id', function(req, res) {
+        var pollId = req.params.id
+        var obj = {}
+        client.hgetall('poll:' + pollId, function(err, reply) {
+            if (reply) {
+                obj['question'] = reply['question']
+                    // console.log(reply)
+                client.hgetall('pollOptions:' + pollId, function(err, reply) {
+                    obj['options'] = reply
+                    res.send(obj)
+                })
+            } else {
+                res.sendStatus(404)
+            }
+        })
+    })
 
-    app.get('/api/getpoll/', function(req, res) {
-        client.keys('poll:*', function(err, reply) {
-            // reply.map(elem => elem.slice(elem.indexOf(':')+1)
-
+    app.get('/api/getpoll/', (req, res) => {
+        client.keys('poll:*', (err, reply) => {
             res.send(reply)
         })
     })
 
-    app.get('/api/getpollData', function(req, res) {
-        client.hgetall('pollData', function(err, reply) {
+    app.get('/api/getpollData', (req, res) => {
+        client.hgetall('pollData', (err, reply) => {
             res.send(JSON.parse(JSON.stringify(reply)))
         })
     })
 
-    app.get('/api/getquestion/:id', function(req, res) {
-        var id = req.params.id
-        client.hgetall('poll'+id, function(err, reply) {
+    app.get('/api/getquestion/:id', (req, res) => {
+        client.hgetall('poll'+ req.params.id, (err, reply) => {
             res.send(JSON.parse(reply))
         })
     })
