@@ -29,7 +29,6 @@ function displayQsn(data, qid) {
     trigger.appendChild(textVote)
     qusElm.appendChild(trigger)
     $('.modal-trigger').leanModal()
-    //$('.modal-trigger').modal('open');
 }
 
 function fetchOptions(data) {
@@ -82,24 +81,23 @@ function getData(data, question) {
         return new IO.getJSON('/api/polloptionsdata/'+id)
       })
       .then((id, res) => {
-        console.log(id,res)
-        var options = res.options
-        console.log(options)
-        var pollId = options.pollId
+        // console.log(id,res)
+        let options = res.options,
+            pollId = options.pollId,
+            pollCount = options.pollCount
+        //console.log(options)
         delete options.pollId
-        var pollCount = options.pollCount
         delete options.pollCount
-        var list = []
-        for (key in options) {
-            var obj = {}
+        let list = []
+        for (let key in options) {
+            let obj = {}
             obj.name = key
             obj.value = Math.round((100 * options[key]) / pollCount)
             obj.votes = options.key
             list.push(obj)
         }
-        console.log(list)
-
-        var html =''
+        // console.log(list)
+        let html =''
         html += '<p class = "flow-text">' + res.question + '</p>'
         html += '<form id="modal-form" action="/api/vote/' + pollId + '" enctype="multipart/form-data" method="post">'
         list.forEach(elm => {
@@ -110,7 +108,6 @@ function getData(data, question) {
         html += '</form>'
         html += '</div>'
         document.getElementById('graph-content').innerHTML = html
-        document.getElementById('graph-modal').showModal()
-        //$('#graph-modal').openModal()
+        $('#graph-modal').openModal()
       })
 }

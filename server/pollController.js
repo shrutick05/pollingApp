@@ -3,6 +3,17 @@ const bodyparser = require('body-parser')
 const formidable = require('formidable')
 const client = redis.createClient()
 
+function set(pollId, question, pollOptions) {
+    client.hset('poll:' + pollId, 'question', question, (err, reply) => console.log('set ' + reply))
+    client.hset('poll:' + pollId, 'pollId', pollId, (err, reply) => console.log('set ' + reply))
+    for (let element in pollOptions) {
+        client.hset('pollOptions:' + pollId, pollOptions[element], 0, (err, reply) => console.log('set ' + reply))
+    }
+    client.hset('pollOptions:' + pollId, 'pollId', pollId, (err, reply) => console.log('set ' + reply))
+    client.hset('pollOptions:' + pollId, 'pollCount', 0, (err, reply) => console.log('set ' + reply))
+    client.hmset('pollData', pollId, JSON.stringify({"question": question, "pollOptions": pollOptions}), (err, reply) => console.log('set ' + reply))
+}
+
 module.exports = function(app) {
 
     app.post('/api/poll', (req, res) => {
@@ -20,22 +31,6 @@ module.exports = function(app) {
             res.redirect('/')
         })
     })
-
-    function set(pollId, question, pollOptions) {
-
-        client.hset('poll:' + pollId, 'question', question, (err, reply) => console.log('set ' + reply))
-
-        client.hset('poll:' + pollId, 'pollId', pollId, (err, reply) => console.log('set ' + reply))
-
-        for (let element in pollOptions) {
-            client.hset('pollOptions:' + pollId, pollOptions[element], 0, (err, reply) => console.log('set ' + reply))
-        }
-        client.hset('pollOptions:' + pollId, 'pollId', pollId, (err, reply) => console.log('set ' + reply))
-
-        client.hset('pollOptions:' + pollId, 'pollCount', 0, (err, reply) => console.log('set ' + reply))
-
-        client.hmset('pollData', pollId, JSON.stringify({"question": question, "pollOptions": pollOptions}), (err, reply) => console.log('set ' + reply))
-    }
 
     app.get('/api/polloptions/:id', (req, res) => {
         client.hgetall('pollOptions:' + req.params.id, (err, reply) => res.send(reply))
